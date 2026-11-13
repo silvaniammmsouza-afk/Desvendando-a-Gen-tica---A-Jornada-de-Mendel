@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genética Interativa | As Leis de Mendel</title>
+<style>
+  :root{
+    --verde-escuro:#1b5e20;
+    --verde:#2e7d32;
+    --verde-claro:#4caf50;
+    --verde-suave:#e8f5e9;
+    --texto:#263238;
+    --cinza:#607d8b;
+    --erro:#c62828;
+    --erro-suave:#ffebee;
+    --sombra:0 10px 30px rgba(0,0,0,.12);
+    --raio:18px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;}
+
+  body{
+    font-family:"Segoe UI",Roboto,Arial,sans-serif;
+    background:linear-gradient(135deg,#e8f5e9 0%,#f1f8e9 50%,#e0f2f1 100%);
+    color:var(--texto);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:24px 16px 48px;
+  }
+
+  .app{width:100%;max-width:820px;}
+
+  /* ---------- TELAS ---------- */
+  .tela{display:none;animation:entrar .35s ease;}
+  .tela.ativa{display:block;}
+
+  @keyframes entrar{
+    from{opacity:0;transform:translateY(14px);}
+    to{opacity:1;transform:translateY(0);}
+  }
+
+  .card{
+    background:#fff;
+    border-radius:var(--raio);
+    box-shadow:var(--sombra);
+    padding:28px;
+  }
+
+  /* ---------- TELA INICIAL ---------- */
+  .badge{
+    display:inline-block;
+    background:var(--verde-suave);
+    color:var(--verde-escuro);
+    font-size:.78rem;
+    font-weight:700;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    padding:6px 14px;
+    border-radius:999px;
+    margin-bottom:16px;
+  }
+
+  h1{
+    font-size:2rem;
+    color:var(--verde-escuro);
+    line-height:1.15;
+  }
+
+  .subtitulo{
+    color:var(--cinza);
+    font-size:1.05rem;
+    margin-top:6px;
+    margin-bottom:24px;
+  }
+
+  .info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+    margin-bottom:26px;
+  }
+
+  .info-item{
+    background:var(--verde-suave);
+    border-left:4px solid var(--verde-claro);
+    border-radius:10px;
+    padding:12px 14px;
+  }
+
+  .info-item strong{
+    display:block;
+    font-size:.75rem;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--verde-escuro);
+    margin-bottom:4px;
+  }
+
+  .info-item span{font-size:.92rem;}
+
+  .botoes{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:24px;
+  }
+
+  .btn{
+    font-family:inherit;
+    font-size:1rem;
+    font-weight:600;
+    border:none;
+    border-radius:12px;
+    padding:14px 22px;
+    cursor:pointer;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+
+  .btn:hover{transform:translateY(-2px);}
+  .btn:active{transform:translateY(0);}
+
+  .btn.primario{
+    background:var(--verde);
+    color:#fff;
+    box-shadow:0 6px 16px rgba(46,125,50,.35);
+  }
+  .btn.primario:hover{background:var(--verde-claro);}
+
+  .btn.secundario{
+    background:#fff;
+    color:var(--verde-escuro);
+    border:2px solid var(--verde-claro);
+  }
+  .btn.secundario:hover{background:var(--verde-suave);}
+
+  .btn.neutro{
+    background:#eceff1;
+    color:#37474f;
+  }
+  .btn.neutro:hover{background:#dfe4e7;}
+
+  .orientacoes{
+    background:#f7fbf7;
+    border:1px dashed var(--verde-claro);
+    border-radius:12px;
+    padding:18px 20px;
+  }
+  .orientacoes h3{
+    font-size:.95rem;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--verde-escuro);
+    margin-bottom:10px;
+  }
+  .orientacoes ol{padding-left:20px;}
+  .orientacoes li{
+    font-size:.92rem;
+    color:#455a64;
+    margin-bottom:6px;
+    line-height:1.5;
+  }
+
+  /* ---------- CONTEÚDO ---------- */
+  .conteudo h2{
+    color:var(--verde-escuro);
+    font-size:1.45rem;
+    margin-bottom:18px;
+  }
+
+  .bloco{
+    margin-bottom:22px;
+    padding-bottom:18px;
+    border-bottom:1px solid #e0e0e0;
+  }
+  .bloco:last-of-type{border-bottom:none;}
+
+  .bloco h3{
+    color:var(--verde);
+    font-size:1.08rem;
+    margin-bottom:10px;
+  }
+
+  .bloco p{
+    font-size:.96rem;
+    line-height:1.65;
+    color:#37474f;
+    margin-bottom:10px;
+  }
+
+  .conceitos{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:10px;
+    margin-top:8px;
+  }
+  .conceito{
+    background:var(--verde-suave);
+    border-radius:10px;
+    padding:12px 14px;
+    font-size:.9rem;
+    line-height:1.5;
+  }
+  .conceito b{color:var(--verde-escuro);}
+
+  table.punnett{
+    border-collapse:collapse;
+    margin:14px auto;
+    font-size:.95rem;
+  }
+  table.punnett td,table.punnett th{
+    border:1px solid #c8e6c9;
+    width:64px;
+    height:48px;
+    text-align:center;
+    font-weight:600;
+  }
+  table.punnett th{background:var(--verde);color:#fff;}
+  table.punnett td{background:#f1f8e9;color:var(--verde-escuro);}
+  table.punnett td.destaque{background:#c8e6c9;}
+
+  .legenda{
+    text-align:center;
+    font-size:.85rem;
+    color:var(--cinza);
+    margin-top:6px;
+  }
+
+  /* ---------- QUIZ ---------- */
+  .topo-quiz{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:10px;
+    font-size:.9rem;
+    font-weight:600;
+    color:var(--verde-escuro);
+  }
+
+  .placar-topo{
+    background:var(--verde-suave);
+    padding:5px 14px;
+    border-radius:999px;
+    font-size:.85rem;
+  }
+
+  .barra{
+    width:100%;
+    height:10px;
+    background:#e0e0e0;
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:24px;
+  }
+  .barra span{
+    display:block;
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg,var(--verde-claro),var(--verde));
+    border-radius:999px;
+    transition:width .35s ease;
+  }
+
+  .pergunta{
+    font-size:1.15rem;
+    line-height:1.55;
+    font-weight:600;
+    color:var(--texto);
+    margin-bottom:22px;
+  }
+
+  .alternativas{display:flex;flex-direction:column;gap:10px;}
+
+  .alternativa{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    text-align:left;
+    font-family:inherit;
+    font-size:.97rem;
+    line-height:1.45;
+    color:#37474f;
+    background:#fff;
+    border:2px solid #cfd8dc;
+    border-radius:12px;
+    padding:14px 16px;
+    cursor:pointer;
+    transition:all .18s ease;
+  }
+
+  .alternativa:hover:not(:disabled){
+    border-color:var(--verde-claro);
+    background:var(--verde-suave);
+  }
+
+  .alternativa .letra{
+    flex-shrink:0;
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    background:#eceff1;
+    color:#455a64;
+    font-weight:700;
+    font-size:.85rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .18s ease;
+  }
+
+  .alternativa:disabled{cursor:default;}
+
+  .alternativa.correta{
+    border-color:var(--verde);
+    background:var(--verde-suave);
+    color:var(--verde-escuro);
+    font-weight:600;
+  }
+  .alternativa.correta .letra{background:var(--verde);color:#fff;}
+
+  .alternativa.incorreta{
+    border-color:var(--erro);
+    background:var(--erro-suave);
+    color:var(--erro);
+    font-weight:600;
+  }
+  .alternativa.incorreta .letra{background:var(--erro);color:#fff;}
+
+  .feedback{
+    margin-top:20px;
+    border-radius:12px;
+    padding:16px 18px;
+    font-size:.94rem;
+    line-height:1.6;
+    display:none;
+  }
+  .feedback.mostrar{display:block;animation:entrar .25s ease;}
+  .feedback.ok{background:var(--verde-suave);border-left:5px solid var(--verde);}
+  .feedback.nok{background:var(--erro-suave);border-left:5px solid var(--erro);}
+  .feedback b{display:block;margin-bottom:6px;font-size:.98rem;}
+  .feedback.ok b{color:var(--verde-escuro);}
+  .feedback.nok b{color:var(--erro);}
+
+  .acoes-quiz{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:20px;
+  }
+
+  /* ---------- RESULTADO ---------- */
+  .resultado-topo{text-align:center;margin-bottom:26px;}
+
+  .emoji-resultado{font-size:3.4rem;line-height:1;margin-bottom:10px;}
+
+  .resultado-topo h2{
+    color:var(--verde-escuro);
+    font-size:1.6rem;
+    margin-bottom:8px;
+  }
+
+  .mensagem-final{
+    color:#455a64;
+    font-size:1rem;
+    line-height:1.6;
+    max-width:520px;
+    margin:0 auto;
+  }
+
+  .painel-pontos{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+    gap:12px;
+    margin:26px 0;
+  }
+
+  .ponto-card{
+    background:var(--verde-suave);
+    border-radius:14px;
+    padding:18px 12px;
+    text-align:center;
+  }
+  .ponto-card .valor{
+    display:block;
+    font-size:1.9rem;
+    font-weight:800;
+    color:var(--verde-escuro);
+    line-height:1.1;
+  }
+  .ponto-card .rotulo{
+    font-size:.78rem;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+    color:var(--cinza);
+    margin-top:6px;
+  }
+
+  .revisao{margin-bottom:22px;}
+  .revisao h3{
+    font-size:1.02rem;
+    color:var(--verde-escuro);
+    margin-bottom:12px;
+  }
+
+  .item-revisao{
+    background:#fafafa;
+    border-left:4px solid var(--erro);
+    border-radius:10px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    font-size:.9rem;
+    line-height:1.55;
+  }
+  .item-revisao .num{
+    font-weight:800;
+    color:var(--erro);
+    margin-right:4px;
+  }
+  .item-revisao .resp-certa{
+    color:var(--verde-escuro);
+    font-weight:700;
+  }
+  .item-revisao .resp-errada{
+    color:var(--erro);
+    text-decoration:line-through;
+  }
+
+  .tudo-certo{
+    background:var(--verde-suave);
+    border-radius:12px;
+    padding:18px;
+    text-align:center;
+    color:var(--verde-escuro);
+    font-weight:600;
+    font-size:.95rem;
+  }
+
+  @media (max-width:600px){
+    .card{padding:20px;}
+    h1{font-size:1.6rem;}
+    .pergunta{font-size:1.05rem;}
+    .btn{width:100%;justify-content:center;}
+    .botoes{flex-direction:column;}
+    .acoes-quiz{justify-content:stretch;}
+  }
+</style>
+</head>
+<body>
+<main class="app">
+
+  <!-- ================= TELA INICIAL ================= -->
+  <section id="tela-inicio" class="tela ativa">
+    <div class="card">
+      <span class="badge">Biologia • Ensino Médio</span>
+      <h1>🧬 Genética Interativa</h1>
+      <p class="subtitulo">Aprendendo as Leis de Mendel na prática</p>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <strong>Etapa de ensino</strong>
+          <span>Ensino Médio — 2ª e 3ª séries</span>
+        </div>
+        <div class="info-item">
+          <strong>Faixa etária</strong>
+          <span>15 a 18 anos</span>
+        </div>
+        <div class="info-item">
+          <strong>Componente curricular</strong>
+          <span>Biologia</span>
+        </div>
+        <div class="info-item">
+          <strong>Conteúdo</strong>
+          <span>Genética: 1ª e 2ª Leis de Mendel</span>
+        </div>
+      </div>
+
+      <div class="botoes">
+        <button class="btn primario" onclick="abrirConteudo()">📖 Ver o conteúdo</button>
+        <button class="btn secundario" onclick="iniciarQuiz()">🚀 Iniciar quiz (15 questões)</button>
+      </div>
+
+      <div class="orientacoes">
+        <h3>Como usar este software</h3>
+        <ol>
+          <li>Leia a tela de conteúdo para revisar os conceitos das Leis de Mendel.</li>
+          <li>Clique em <b>Iniciar quiz</b> para responder às 15 questões de múltipla escolha.</li>
+          <li>Ao escolher uma alternativa, você recebe <b>na hora</b> se acertou ou errou, com uma explicação.</li>
+          <li>Cada acerto vale <b>1 ponto</b>. A pontuação aparece no topo da tela durante todo o quiz.</li>
+          <li>No final, você verá seu desempenho e poderá revisar as questões que errou.</li>
+          <li>É possível refazer o quiz quantas vezes quiser — tente melhorar sua pontuação!</li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TELA DE CONTEÚDO ================= -->
+  <section id="tela-conteudo" class="tela">
+    <div class="card conteudo">
+      <h2>📖 Revisando o conteúdo</h2>
+
+      <div class="bloco">
+        <h3>O que é Genética?</h3>
+        <p>
+          Genética é o ramo da Biologia que estuda a <b>hereditariedade</b>, ou seja, como as
+          características são transmitidas de pais para filhos através dos <b>genes</b>.
+          O austríaco <b>Gregor Mendel</b> (1822–1884) é considerado o pai da Genética por ter
+          descoberto, com experimentos em ervilhas, os princípios básicos dessa transmissão.
+        </p>
+      </div>
+
+      <div class="bloco">
+        <h3>Conceitos básicos</h3>
+        <div class="conceitos">
+          <div class="conceito"><b>Gene:</b> trecho do DNA que contém a informação para uma característica.</div>
+          <div class="conceito"><b>Alelo:</b> cada uma das formas alternativas de um mesmo gene (ex.: A e a).</div>
+          <div class="conceito"><b>Genótipo:</b> a constituição genética do indivíduo (ex.: Aa).</div>
+          <div class="conceito"><b>Fenótipo:</b> a característica que se manifesta (ex.: semente amarela).</div>
+          <div class="conceito"><b>Homozigoto:</b> alelos iguais (AA ou aa).</div>
+          <div class="conceito"><b>Heterozigoto:</b> alelos diferentes (Aa).</div>
+          <div class="conceito"><b>Dominante:</b> alelo que se manifesta mesmo em dose única (A).</div>
+          <div class="conceito"><b>Recessivo:</b> alelo que só se manifesta em dobro (aa).</div>
+        </div>
+      </div>
+
+      <div class="bloco">
+        <h3>1ª Lei de Mendel — Lei da Segregação dos Fatores</h3>
+        <p>
+          Cada característica é determinada por um par de fatores (alelos) que se
+          <b>separam na formação dos gametas</b>. Assim, um indivíduo <b>Aa</b> forma gametas
+          <b>A</b> e <b>a</b> em proporções iguais.
+        </p>
+        <p>Exemplo do cruzamento entre dois heterozigotos (Aa × Aa):</p>
+        <table class="punnett">
+          <tr><th></th><th>A</th><th>a</th></tr>
+          <tr><th>A</th><td>AA</td><td>Aa</td></tr>
+          <tr><th>a</th><td>Aa</td><td class="destaque">aa</td></tr>
+        </table>
+        <p class="legenda">
+          Proporção genotípica: 1 AA : 2 Aa : 1 aa &nbsp;|&nbsp;
+          Proporção fenotípica: <b>3 dominantes : 1 recessivo</b>
+        </p>
+      </div>
+
+      <div class="bloco">
+        <h3>2ª Lei de Mendel — Lei da Segregação Independente</h3>
+        <p>
+          Quando dois ou mais pares de alelos estão em <b>cromossomos diferentes</b>, eles se
+          separam de forma <b>independente</b> na formação dos gametas. Por isso, um indivíduo
+          <b>AaBb</b> produz 4 tipos de gametas: <b>AB, Ab, aB e ab</b>.
+        </p>
+        <p>
+          O número de tipos de gametas é dado por <b>2<sup>n</sup></b>, em que <b>n</b> é o número
+          de pares heterozigotos. Exemplo: AaBbCc → 2³ = <b>8 gametas</b> diferentes.
+        </p>
+        <p>
+          No cruzamento <b>AaBb × AaBb</b>, a proporção fenotípica clássica é
+          <b>9 : 3 : 3 : 1</b>.
+        </p>
+      </div>
+
+      <div class="botoes" style="margin-top:26px;margin-bottom:0;">
+        <button class="btn secundario" onclick="voltarInicio()">← Voltar</button>
+        <button class="btn primario" onclick="iniciarQuiz()">🚀 Começar o quiz</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TELA DO QUIZ ================= -->
+  <section id="tela-quiz" class="tela">
+    <div class="card">
+      <div class="topo-quiz">
+        <span id="contador-questao">Questão 1 de 15</span>
+        <span class="placar-topo" id="placar-topo">⭐ 0 pontos</span>
+      </div>
+
+      <div class="barra"><span id="barra-progresso"></span></div>
+
+      <p class="pergunta" id="texto-pergunta"></p>
+
+      <div class="alternativas" id="alternativas"></div>
+
+      <div class="feedback" id="feedback"></div>
+
+      <div class="acoes-quiz">
+        <button class="btn primario" id="btn-proxima" style="display:none;" onclick="proximaQuestao()">
+          Próxima questão →
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TELA DE RESULTADO ================= -->
+  <section id="tela-resultado" class="tela">
+    <div class="card">
+      <div class="resultado-topo">
+        <div class="emoji-resultado" id="emoji-resultado">🏆</div>
+        <h2 id="titulo-resultado">Resultado final</h2>
+        <p class="mensagem-final" id="mensagem-final"></p>
+      </div>
+
+      <div class="painel-pontos">
+        <div class="ponto-card">
+          <span class="valor" id="valor-acertos">0</span>
+          <span class="rotulo">Acertos</span>
+        </div>
+        <div class="ponto-card">
+          <span class="valor" id="valor-erros">0</span>
+          <span class="rotulo">Erros</span>
+        </div>
+        <div class="ponto-card">
+          <span class="valor" id="valor-pontos">0</span>
+          <span class="rotulo">Pontos</span>
+        </div>
+        <div class="ponto-card">
+          <span class="valor" id="valor-aproveitamento">0%</span>
+          <span class="rotulo">Aproveitamento</span>
+        </div>
+      </div>
+
+      <div class="revisao" id="revisao"></div>
+
+      <div class="botoes" style="margin-bottom:0;">
+        <button class="btn primario" onclick="iniciarQuiz()">🔄 Refazer o quiz</button>
+        <button class="btn secundario" onclick="abrirConteudo()">📖 Rever o conteúdo</button>
+        <button class="btn neutro" onclick="voltarInicio()">🏠 Tela inicial</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* =========================================================
+   BANCO DE QUESTÕES — 15 questões sobre as Leis de Mendel
+   ========================================================= */
+const questoes = [
+  {
+    pergunta: 'Quem é considerado o "pai da Genética" por seus experimentos sobre hereditariedade?',
+    alternativas: ['Charles Darwin', 'Gregor Mendel', 'Louis Pasteur', 'James Watson'],
+    correta: 1,
+    explicacao: 'Gregor Mendel, monge austríaco, realizou no século XIX experimentos com ervilhas e descreveu os princípios básicos da hereditariedade.'
+  },
+  {
+    pergunta: 'Qual organismo foi utilizado por Mendel em seus experimentos clássicos?',
+    alternativas: ['Moscas-das-frutas', 'Camundongos', 'Ervilhas (Pisum sativum)', 'Bactérias'],
+    correta: 2,
+    explicacao: 'Mendel escolheu a ervilha Pisum sativum por apresentar características bem definidas, ciclo curto e facilidade de cruzamento controlado.'
+  },
+  {
+    pergunta: 'O que é um alelo?',
+    alternativas: [
+      'Uma característica visível do indivíduo',
+      'Cada uma das formas alternativas de um mesmo gene',
+      'Um tipo de cromossomo sexual',
+      'O conjunto de todos os genes de um indivíduo'
+    ],
+    correta: 1,
+    explicacao: 'Alelos são as diferentes versões de um mesmo gene, como o alelo A (dominante) e o alelo a (recessivo).'
+  },
+  {
+    pergunta: 'Qual é a diferença entre genótipo e fenótipo?',
+    alternativas: [
+      'Genótipo é a constituição genética; fenótipo é a característica manifestada',
+      'Genótipo é a aparência; fenótipo é o gene',
+      'Os dois termos significam exatamente a mesma coisa',
+      'Genótipo se refere a animais e fenótipo a plantas'
+    ],
+    correta: 0,
+    explicacao: 'Genótipo é a combinação de alelos (ex.: Aa); fenótipo é a característica que aparece (ex.: semente amarela), resultado do genótipo com o ambiente.'
+  },
+  {
+    pergunta: 'Um indivíduo com genótipo "AA" é classificado como:',
+    alternativas: ['Heterozigoto', 'Homozigoto dominante', 'Homozigoto recessivo', 'Hemizigoto'],
+    correta: 1,
+    explicacao: 'Quando os dois alelos são iguais e dominantes (AA), o indivíduo é homozigoto dominante. Se fossem "aa", seria homozigoto recessivo.'
+  },
+  {
+    pergunta: 'A Primeira Lei de Mendel também é conhecida como:',
+    alternativas: [
+      'Lei da segregação independente',
+      'Lei da segregação dos fatores',
+      'Lei da herança ligada ao sexo',
+      'Lei da dominância incompleta'
+    ],
+    correta: 1,
+    explicacao: 'A 1ª Lei é a Lei da Segregação dos Fatores: os dois alelos de um par se separam na formação dos gametas.'
+  },
+  {
+    pergunta: 'No cruzamento entre uma planta AA e uma planta aa, qual será o genótipo dos descendentes?',
+    alternativas: ['100% AA', '100% Aa', '50% AA e 50% aa', '100% aa'],
+    correta: 1,
+    explicacao: 'Cada descendente recebe um alelo A do primeiro progenitor e um alelo a do segundo, resultando sempre em Aa (100% heterozigotos).'
+  },
+  {
+    pergunta: 'No cruzamento Aa × Aa (dominância completa), qual é a proporção fenotípica esperada?',
+    alternativas: ['1 : 1', '3 : 1', '1 : 2 : 1', '9 : 3 : 3 : 1'],
+    correta: 1,
+    explicacao: 'O cruzamento Aa × Aa gera 1 AA : 2 Aa : 1 aa. Como AA e Aa têm o mesmo fenótipo, a proporção fenotípica é 3 dominantes : 1 recessivo.'
+  },
+  {
+    pergunta: 'A Segunda Lei de Mendel (segregação independente) afirma que:',
+    alternativas: [
+      'Os alelos de um mesmo gene se separam na formação dos gametas',
+      'Genes localizados em cromossomos diferentes se segregam independentemente',
+      'As características dos pais se misturam nos filhos',
+      'Genes do mesmo cromossomo nunca se separam'
+    ],
+    correta: 1,
+    explicacao: 'A 2ª Lei vale para genes em cromossomos diferentes: a separação de um par de alelos não interfere na separação de outro par.'
+  },
+  {
+    pergunta: 'Um indivíduo com genótipo AaBb (genes em cromossomos diferentes) produz quantos tipos diferentes de gametas?',
+    alternativas: ['2', '3', '4', '8'],
+    correta: 2,
+    explicacao: 'Usando 2ⁿ, com n = 2 pares heterozigotos, temos 2² = 4 gametas: AB, Ab, aB e ab.'
+  },
+  {
+    pergunta: 'No cruzamento entre um indivíduo Aa e um indivíduo aa, qual é a proporção fenotípica esperada?',
+    alternativas: ['3 : 1', '1 : 1', '9 : 3 : 3 : 1', '1 : 2 : 1'],
+    correta: 1,
+    explicacao: 'Aa × aa origina 50% Aa (dominantes) e 50% aa (recessivos), ou seja, proporção de 1 : 1.'
+  },
+  {
+    pergunta: 'Por que um indivíduo "aa" manifesta a característica recessiva?',
+    alternativas: [
+      'Porque possui apenas alelos dominantes',
+      'Porque possui dois alelos recessivos e não há alelo dominante que os mascare',
+      'Porque todos os seus genes são iguais',
+      'Porque características recessivas são sempre doenças'
+    ],
+    correta: 1,
+    explicacao: 'O alelo recessivo só se expressa quando está em dose dupla (aa), pois não existe alelo dominante para impedir sua manifestação.'
+  },
+  {
+    pergunta: 'No cruzamento AaBb × AaBb (genes independentes), qual é a proporção fenotípica clássica?',
+    alternativas: ['3 : 1', '1 : 2 : 1', '9 : 3 : 3 : 1', '1 : 1 : 1 : 1'],
+    correta: 2,
+    explicacao: 'É a proporção clássica da 2ª Lei de Mendel: 9 dominantes para as duas características, 3 para uma, 3 para a outra e 1 recessivo para ambas.'
+  },
+  {
+    pergunta: 'Um indivíduo com genótipo AaBbCc pode produzir quantos tipos diferentes de gametas?',
+    alternativas: ['3', '6', '8', '16'],
+    correta: 2,
+    explicacao: 'Aplicando 2ⁿ com n = 3 pares heterozigotos: 2³ = 8 tipos de gametas diferentes.'
+  },
+  {
+    pergunta: 'O que é um cruzamento-teste?',
+    alternativas: [
+      'Cruzar dois indivíduos heterozigotos entre si',
+      'Cruzar o indivíduo de genótipo desconhecido com um homozigoto recessivo para descobrir seu genótipo',
+      'Cruzar duas linhagens puras dominantes',
+      'Um exame de DNA feito em laboratório'
+    ],
+    correta: 1,
+    explicacao: 'No cruzamento-teste, cruza-se o indivíduo de genótipo desconhecido com um homozigoto recessivo (aa). Se aparecerem descendentes recessivos, o indivíduo era heterozigoto.'
+  }
+];
+
+/* =========================================================
+   ESTADO DO JOGO
+   ========================================================= */
+let indiceAtual = 0;
+let pontos = 0;
+let respondida = false;
+let respostasUsuario = []; // guarda o índice da alternativa marcada em cada questão
+
+/* =========================================================
+   NAVEGAÇÃO ENTRE TELAS
+   ========================================================= */
+function trocarTela(id) {
+  document.querySelectorAll('.tela').forEach(function (t) {
+    t.classList.remove('ativa');
+  });
+  document.getElementById(id).classList.add('ativa');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function voltarInicio() {
+  trocarTela('tela-inicio');
+}
+
+function abrirConteudo() {
+  trocarTela('tela-conteudo');
+}
+
+/* =========================================================
+   QUIZ
+   ========================================================= */
+function iniciarQuiz() {
+  indiceAtual = 0;
+  pontos = 0;
+  respostasUsuario = [];
+  trocarTela('tela-quiz');
+  atualizarPlacarTopo();
+  renderizarQuestao();
+}
+
+function atualizarPlacarTopo() {
+  document.getElementById('placar-topo').textContent =
+    '⭐ ' + pontos + (pontos === 1 ? ' ponto' : ' pontos');
+}
+
+function renderizarQuestao() {
+  const q = questoes[indiceAtual];
+  respondida = false;
+
+  // Cabeçalho e barra de progresso
+  document.getElementById('contador-questao').textContent =
+    'Questão ' + (indiceAtual + 1) + ' de ' + questoes.length;
+
+  document.getElementById('barra-progresso').style.width =
+    ((indiceAtual / questoes.length) * 100) + '%';
+
+  // Pergunta
+  document.getElementById('texto-pergunta').textContent = q.pergunta;
+
+  // Alternativas
+  const container = document.getElementById('alternativas');
+  container.innerHTML = '';
+
+  const letras = ['A', 'B', 'C', 'D'];
+
+  q.alternativas.forEach(function (texto, i) {
+    const botao = document.createElement('button');
+    botao.type = 'button';
+    botao.className = 'alternativa';
+    botao.innerHTML =
+      '<span class="letra">' + letras[i] + '</span><span>' + texto + '</span>';
+    botao.addEventListener('click', function () {
+      responder(i);
+    });
+    container.appendChild(botao);
+  });
+
+  // Feedback e botão próxima
+  const feedback = document.getElementById('feedback');
+  feedback.className = 'feedback';
+  feedback.innerHTML = '';
+  document.getElementById('btn-proxima').style.display = 'none';
+}
+
+function responder(indiceEscolhido) {
+  if (respondida) return;
+  respondida = true;
+
+  const q = questoes[indiceAtual];
+  const acertou = indiceEscolhido === q.correta;
+  const botoes = document.querySelectorAll('.alternativa');
+
+  // Marca visualmente as respostas e bloqueia novos cliques
+  botoes.forEach(function (botao, i) {
+    botao.disabled = true;
+    if (i === q.correta) botao.classList.add('correta');
+    if (i === indiceEscolhido && !acertou) botao.classList.add('incorreta');
+  });
+
+  // Registra a resposta e a pontuação
+  respostasUsuario[indiceAtual] = indiceEscolhido;
+  if (acertou) pontos++;
+
+  atualizarPlacarTopo();
+
+  // Feedback imediato
+  const feedback = document.getElementById('feedback');
+  feedback.className = 'feedback mostrar ' + (acertou ? 'ok' : 'nok');
+  feedback.innerHTML = acertou
+    ? '<b>✅ Resposta correta! +1 ponto</b>' + q.explicacao
+    : '<b>❌ Resposta incorreta</b>A alternativa correta é a letra ' +
+      ['A', 'B', 'C', 'D'][q.correta] + ': <b>' + q.alternativas[q.correta] +
+      '</b>.<br>' + q.explicacao;
+
+  // Atualiza a barra de progresso
+  document.getElementById('barra-progresso').style.width =
+    (((indiceAtual + 1) / questoes.length) * 100) + '%';
+
+  // Mostra o botão de avançar
+  const btnProxima = document.getElementById('btn-proxima');
+  btnProxima.style.display = 'inline-block';
+  btnProxima.textContent =
+    indiceAtual === questoes.length - 1 ? 'Ver resultado 🏁' : 'Próxima questão →';
+}
+
+function proximaQuestao() {
+  if (indiceAtual < questoes.length - 1) {
+    indiceAtual++;
+    renderizarQuestao();
+  } else {
+    finalizarQuiz();
+  }
+}
+
+/* =========================================================
+   RESULTADO FINAL
+   ========================================================= */
+function finalizarQuiz() {
+  const total = questoes.length;
+  const acertos = pontos;
+  const erros = total - acertos;
+  const aproveitamento = Math.round((acertos / total) * 100);
+
+  document.getElementById('valor-acertos').textContent = acertos;
+  document.getElementById('valor-erros').textContent = erros;
+  document.getElementById('valor-pontos').textContent = pontos;
+  document.getElementById('valor-aproveitamento').textContent = aproveitamento + '%';
+
+  // Mensagem e emoji conforme desempenho
+  let titulo, mensagem, emoji;
+
+  if (aproveitamento === 100) {
+    emoji = '🏆';
+    titulo = 'Perfeito! Você dominou as Leis de Mendel!';
+    mensagem = 'Todos os conceitos de genética mendeliana estão muito claros para você. Continue assim!';
+  } else if (aproveitamento >= 80) {
+    emoji = '🌟';
+    titulo = 'Excelente desempenho!';
+    mensagem = 'Você compreendeu muito bem as Leis de Mendel. Revise apenas os poucos pontos em que errou.';
+  } else if (aproveitamento >= 60) {
+    emoji = '👍';
+    titulo = 'Bom trabalho!';
+    mensagem = 'Você já domina boa parte do conteúdo. Releia o material e refaça o quiz para melhorar ainda mais.';
+  } else if (aproveitamento >= 40) {
+    emoji = '📚';
+    titulo = 'Você está no caminho!';
+    mensagem = 'Alguns conceitos ainda precisam ser revisados. Volte à tela de conteúdo, com atenção especial aos cruzamentos e proporções.';
+  } else {
+    emoji = '💪';
+    titulo = 'Hora de revisar o conteúdo';
+    mensagem = 'Não desanime! Releia as Leis de Mendel com calma, pratique os quadros de Punnett e tente novamente.';
+  }
+
+  document.getElementById('emoji-resultado').textContent = emoji;
+  document.getElementById('titulo-resultado').textContent = titulo;
+  document.getElementById('mensagem-final').textContent = mensagem;
+
+  // Revisão das questões erradas
+  const revisao = document.getElementById('revisao');
+  revisao.innerHTML = '';
+
+  const erradas = [];
+  questoes.forEach(function (q, i) {
+    if (respostasUsuario[i] !== q.correta) {
+      erradas.push(i);
+    }
+  });
+
+  if (erradas.length === 0) {
+    revisao.innerHTML =
+      '<div class="tudo-certo">🎉 Você acertou todas as 15 questões. Parabéns!</div>';
+  } else {
+    const titulo = document.createElement('h3');
+    titulo.textContent = '📝 Revise as questões que você errou';
+    revisao.appendChild(titulo);
+
+    erradas.forEach(function (i) {
+      const q = questoes[i];
+      const escolhida = respostasUsuario[i];
+      const textoEscolhido =
+        escolhida === undefined ? 'Não respondida' : q.alternativas[escolhida];
+
+      const item = document.createElement('div');
+      item.className = 'item-revisao';
+      item.innerHTML =
+        '<span class="num">' + (i + 1) + '.</span>' + q.pergunta +
+        '<br><span class="resp-errada">Sua resposta: ' + textoEscolhido + '</span>' +
+        '<br><span class="resp-certa">Correta: ' + q.alternativas[q.correta] + '</span>' +
+        '<br><em>' + q.explicacao + '</em>';
+      revisao.appendChild(item);
+    });
+  }
+
+  trocarTela('tela-resultado');
+}
+</script>
+</body>
+</html>
